@@ -2,20 +2,29 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Save Glee Club</title>
   <style>
+    * {
+      box-sizing: border-box;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     body {
-      font-family: sans-serif;
-      background: #f0f0f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #000;
       margin: 0;
       padding: 0;
+      color: #222;
     }
 
     #game {
       position: relative;
-      width: 600px;
-      height: 600px;
-      margin: 30px auto;
+      width: 100%;
+      max-width: 600px;
+      aspect-ratio: 1 / 1;
+      margin: 20px auto;
       background-image: url('https://i.imgur.com/bY3wsX5.png');
       background-size: cover;
       background-position: center;
@@ -23,21 +32,33 @@
       overflow: hidden;
     }
 
-    #intro {
+    #intro, #gameOverOverlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #000000ee;
-      color: white;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      text-align: center;
       z-index: 5;
       padding: 40px 20px;
-      box-sizing: border-box;
+    }
+
+    #intro {
+      background-color: #000000ee;
+      color: white;
+    }
+
+    #gameOverOverlay {
+      background-color: rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index: 10;
+    }
+
+    #gameOverOverlay.show {
+      display: flex;
+      animation: fadeInPop 0.6s ease-out;
     }
 
     #introImage {
@@ -50,58 +71,79 @@
     }
 
     #dialogueText {
-      width: 100%;
       max-width: 520px;
       font-size: 18px;
       line-height: 1.6;
       text-shadow: 1px 1px black;
-      min-height: 120px;
       white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
+      min-height: 120px;
     }
 
-    #playBtn {
-      margin-top: 30px;
-      padding: 10px 30px;
+    button {
       font-size: 18px;
-      background-color: #ff3366;
-      color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      display: none;
+      background-color: black;
+      color: white;
+      padding: 12px 30px;
+      margin-top: 30px;
     }
 
-    #playBtn:hover {
-      background-color: #cc2952;
+    #playBtn {
+      background-color: white;
+      color: black;
+    }
+
+    button:hover {
+      background-color: #222;
     }
 
     .character {
-      width: 180px;
-      height: 180px;
+      width: 200px;
+      height: 200px;
       position: absolute;
       background-size: cover;
       cursor: pointer;
     }
 
-    #gameOverOverlay {
-      display: none;
+    #score, #timer, #failCounter, #muteBtn {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.4);
-      z-index: 10;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
+      top: 10px;
+      background-color: #ffffffcc;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 20px;
+      padding: 10px 16px;
     }
 
-    #gameOverOverlay.show {
-      display: flex;
-      animation: fadeInPop 0.6s ease-out;
+    #score { left: 10px; }
+    #timer { right: 10px; }
+    #failCounter {
+      bottom: 10px;
+      left: 10px;
+      top: auto;
+    }
+
+    #muteBtn {
+      bottom: 10px;
+      right: 10px;
+      left: auto;
+      top: auto;
+      transform: none;
+      z-index: 15;
+    }
+
+    @keyframes fadeInPop {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-5px, 0); }
+      50% { transform: translate(5px, 0); }
+      75% { transform: translate(-5px, 0); }
     }
 
     #slushie {
@@ -114,31 +156,19 @@
       font-weight: bold;
       color: red;
       text-shadow: 2px 2px black;
-      margin-bottom: 20px;
     }
 
-    #restartBtn {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #ff3366;
-      color: white;
-      border: none;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-
-    #restartBtn:hover {
-      background-color: #cc2952;
-    }
-
-    @keyframes fadeInPop {
-      0% {
-        opacity: 0;
-        transform: scale(0.8);
+    @media (max-width: 480px) {
+      button {
+        font-size: 16px;
+        padding: 10px 20px;
       }
-      100% {
-        opacity: 1;
-        transform: scale(1);
+      #score, #timer, #failCounter, #muteBtn {
+        font-size: 16px;
+        padding: 8px 12px;
+      }
+      #loserText {
+        font-size: 32px;
       }
     }
   </style>
@@ -148,163 +178,190 @@
     <div id="intro">
       <div id="introImage"></div>
       <div id="dialogueText"></div>
-      <button id="playBtn">PLAY</button>
+      <button id="playBtn">SAVE GLEE CLUB</button>
     </div>
 
     <div id="score">Pontos: 0</div>
     <div id="timer">Tempo: 30</div>
+    <button id="muteBtn">🔊</button>
+    <div id="failCounter">FAILS AS A TEACHER: 0</div>
 
     <div id="gameOverOverlay">
-      <img id="slushie" src="https://i.imgur.com/0KBZD01.png" alt="Slushie animado" />
+      <img id="slushie" src="https://i.imgur.com/0KBZD01.png" />
       <div id="loserText">LOSER!</div>
-      <button id="restartBtn">Jogar de novo</button>
+      <button id="restartBtn">TRY AGAIN</button>
     </div>
   </div>
 
   <!-- Sons -->
   <audio id="bgMusic" src="https://www.myinstants.com/media/sounds/glee-dont-rain.mp3" loop></audio>
-  <audio id="gleeSound" src="https://www.myinstants.com/media/sounds/glee.mp3" preload="auto"></audio>
-  <audio id="sueSound" src="https://www.myinstants.com/media/sounds/toxic-sue-sylvester-23632.mp3" preload="auto"></audio>
-  <audio id="brittanySound" src="https://www.myinstants.com/media/sounds/fondue-for-two-glee.mp3" preload="auto"></audio>
-  <audio id="santanaSound" src="https://www.myinstants.com/media/sounds/ive-gotta-gay-go-santana-lopez.mp3" preload="auto"></audio>
-  <audio id="quinnSound" src="https://www.myinstants.com/media/sounds/teen-lesbians-glee.mp3" preload="auto"></audio>
+  <audio id="gleeSound" src="https://www.myinstants.com/media/sounds/glee.mp3"></audio>
+  <audio id="sueSound" src="https://www.myinstants.com/media/sounds/toxic-sue-sylvester.mp3"></audio>
+  <audio id="brittanySound" src="https://www.myinstants.com/media/sounds/fondue-for-two-glee.mp3"></audio>
+  <audio id="santanaSound" src="https://www.myinstants.com/media/sounds/ive-gotta-gay-go-santana-lopez.mp3"></audio>
+  <audio id="quinnSound" src="https://www.myinstants.com/media/sounds/teen-lesbians-glee.mp3"></audio>
 
   <script>
     const bgMusic = document.getElementById("bgMusic");
-    const intro = document.getElementById("intro");
-    const introImage = document.getElementById("introImage");
-    const dialogueText = document.getElementById("dialogueText");
-    const playBtn = document.getElementById("playBtn");
+    const sounds = {
+      glee: document.getElementById("gleeSound"),
+      sue: document.getElementById("sueSound"),
+      brittany: document.getElementById("brittanySound"),
+      santana: document.getElementById("santanaSound"),
+      quinn: document.getElementById("quinnSound")
+    };
+    Object.values(sounds).forEach(s => s.volume = 0.6);
+
+    const bonusMember = 'https://i.imgur.com/dM06Nfb.png';
+    const gleeMembers = [
+      'https://i.imgur.com/IhwEQn6.png', 'https://i.imgur.com/uIO3gkU.png',
+      'https://i.imgur.com/ACddWCo.png', 'https://i.imgur.com/ou1ianM.png',
+      'https://i.imgur.com/lREEKEB.png', 'https://i.imgur.com/HoTt1Rb.png',
+      'https://i.imgur.com/g0yNYad.png', 'https://i.imgur.com/rcpIWd1.png',
+      'https://i.imgur.com/fxL6u9D.png'
+    ];
+    const nonMembers = [
+      'https://i.imgur.com/nifDeKK.png',
+      'https://i.imgur.com/ORy1tTP.png'
+    ];
+    const sueImage = 'https://i.imgur.com/9xxmhXy.png';
+
+    let score = 0, timeLeft = 30, gameInterval, failedCount = 0, isMuted = false;
+    let lastImgSrc = null;
+
     const game = document.getElementById("game");
     const scoreDisplay = document.getElementById("score");
     const timerDisplay = document.getElementById("timer");
+    const failCounter = document.getElementById("failCounter");
     const gameOverOverlay = document.getElementById("gameOverOverlay");
+    const intro = document.getElementById("intro");
+    const playBtn = document.getElementById("playBtn");
     const restartBtn = document.getElementById("restartBtn");
-    const gleeSound = document.getElementById("gleeSound");
-    const sueSound = document.getElementById("sueSound");
-    const brittanySound = document.getElementById("brittanySound");
-    const santanaSound = document.getElementById("santanaSound");
-    const quinnSound = document.getElementById("quinnSound");
+    const introImage = document.getElementById("introImage");
+    const dialogueText = document.getElementById("dialogueText");
+    const muteBtn = document.getElementById("muteBtn");
+
+    muteBtn.addEventListener("click", () => {
+      isMuted = !isMuted;
+      bgMusic.muted = isMuted;
+      muteBtn.textContent = isMuted ? "🔇 Mutado" : "🔊 Som";
+    });
 
     const dialogues = [
       { img: "https://i.imgur.com/bEEBXWI.png", text: "RACHEL: Mr. Schuester, they’re trying to destroy the Glee Club… and my future!" },
       { img: "https://i.imgur.com/zz0eHDg.png", text: "WILL SCHUESTER: I know, Rachel. I’ve heard the rumors. But what can I do?" },
-      { img: "https://i.imgur.com/xRgQUg0.png", text: "RACHEL: Just don’t let the haters in our room. This is our safe place—our stage, our dream!" },
-      { img: "https://i.imgur.com/zz0eHDg.png", text: "Even though you’re a creepy teacher…\nClick fast. Spot the true members.\nKeep the haters out.\n🎶 The music must go on. 🎶" },
+      { img: "https://i.imgur.com/xRgQUg0.png", text: "RACHEL: Don’t let the haters in our room. This is our safe place—our stage!" },
+      { img: "https://i.imgur.com/zz0eHDg.png", text: "Click fast. Spot the real Glee members. Keep the haters out.\n🎶 Let the show go on! 🎶" },
       { img: "https://i.imgur.com/XG67t9A.jpeg", text: "Ready to save the Glee Club? Let’s go!" }
     ];
-
     let currentDialogue = 0;
-    let charIndex = 0;
-    let score = 0;
-    let timeLeft = 30;
-    let gameInterval;
 
-    // Start music immediately on interaction
-    document.addEventListener("DOMContentLoaded", () => {
-      bgMusic.volume = 0.3;
-      bgMusic.play().catch(() => {
-        // wait for interaction
-        document.addEventListener("click", () => bgMusic.play(), { once: true });
-      });
-    });
+    function showDialogue() {
+      const { img, text } = dialogues[currentDialogue];
+      introImage.style.backgroundImage = `url(${img})`;
+      dialogueText.textContent = text;
+    }
 
-    function typeNextChar() {
-      const { text } = dialogues[currentDialogue];
-      if (charIndex < text.length) {
-        dialogueText.textContent += text.charAt(charIndex);
-        charIndex++;
-        setTimeout(typeNextChar, 40);
-      } else {
-        setTimeout(() => {
-          currentDialogue++;
-          if (currentDialogue < dialogues.length) {
-            showDialogue();
-          } else {
-            playBtn.style.display = "inline-block";
-          }
-        }, 1000);
+    function advanceDialogue() {
+      currentDialogue++;
+      if (currentDialogue < dialogues.length) showDialogue();
+      else {
+        document.removeEventListener("click", advanceDialogue);
+        playBtn.style.display = "inline-block";
       }
     }
 
-    function showDialogue() {
-      const { img } = dialogues[currentDialogue];
-      introImage.style.backgroundImage = `url(${img})`;
-      dialogueText.textContent = "";
-      charIndex = 0;
-      typeNextChar();
+    document.addEventListener("DOMContentLoaded", () => {
+      bgMusic.volume = 0.3;
+      bgMusic.play().catch(() => {
+        document.addEventListener("click", () => bgMusic.play(), { once: true });
+      });
+      showDialogue();
+      document.addEventListener("click", advanceDialogue);
+    });
+
+    function playCharacterSound(imgSrc) {
+      if (imgSrc === gleeMembers[7]) sounds.brittany.play();
+      else if (imgSrc === gleeMembers[8]) sounds.santana.play();
+      else if (imgSrc === gleeMembers[6]) sounds.quinn.play();
+      else if (imgSrc === sueImage) { sounds.sue.currentTime = 0; sounds.sue.play(); }
+      else sounds.glee.play();
     }
 
-    const sueImage = 'https://i.imgur.com/9xxmhXy.png';
-    const gleeMembers = [
-      'https://i.imgur.com/IhwEQn6.png',
-      'https://i.imgur.com/uIO3gkU.png',
-      'https://i.imgur.com/ACddWCo.png',
-      'https://i.imgur.com/ou1ianM.png',
-      'https://i.imgur.com/lREEKEB.png',
-      'https://i.imgur.com/HoTt1Rb.png',
-      'https://i.imgur.com/g0yNYad.png',
-      'https://i.imgur.com/rcpIWd1.png',
-      'https://i.imgur.com/fxL6u9D.png'
-    ];
-
-    const nonMembers = [
-      'https://i.imgur.com/9xxmhXy.png',
-      'https://i.imgur.com/nifDeKK.png',
-      'https://i.imgur.com/ORy1tTP.png'
-    ];
-
-    function randomPosition() {
-      const size = 180;
-      const x = Math.random() * (game.offsetWidth - size);
-      const y = Math.random() * (game.offsetHeight - size);
-      return { x, y };
+    function getRandomNonRepeatingImage(pool) {
+      let filtered = pool.filter(img => img !== lastImgSrc);
+      if (filtered.length === 0) filtered = pool;
+      const chosen = filtered[Math.floor(Math.random() * filtered.length)];
+      lastImgSrc = chosen;
+      return chosen;
     }
 
     function spawnCharacter() {
       game.querySelectorAll(".character").forEach(el => el.remove());
+      const spawnCount = score >= 50 ? 3 : (score >= 10 ? 2 : 1);
 
-      const isGlee = Math.random() < 0.5;
-      const imgSrc = isGlee
-        ? gleeMembers[Math.floor(Math.random() * gleeMembers.length)]
-        : nonMembers[Math.floor(Math.random() * nonMembers.length)];
+      for (let i = 0; i < spawnCount; i++) {
+        let isBonus = Math.random() < 0.04;
+        let isGlee = !isBonus && Math.random() < (score >= 50 ? 0.3 : 0.5);
+        let pool = isGlee ? gleeMembers : nonMembers;
+        let imgSrc = isBonus ? bonusMember : getRandomNonRepeatingImage(pool);
 
-      const character = document.createElement("div");
-      character.classList.add("character");
-      character.style.backgroundImage = `url(${imgSrc})`;
+        const character = document.createElement("div");
+        character.classList.add("character");
+        character.style.backgroundImage = `url(${imgSrc})`;
 
-      const pos = randomPosition();
-      character.style.left = pos.x + "px";
-      character.style.top = pos.y + "px";
+        const size = 200;
+        let x, y, tries = 0, overlap;
+        do {
+          x = Math.random() * (game.offsetWidth - size);
+          y = Math.random() * (game.offsetHeight - size);
+          overlap = false;
+          document.querySelectorAll(".character").forEach(other => {
+            const ox = parseFloat(other.style.left);
+            const oy = parseFloat(other.style.top);
+            if (Math.abs(ox - x) < size && Math.abs(oy - y) < size) {
+              overlap = true;
+            }
+          });
+          tries++;
+        } while (overlap && tries < 20);
 
-      character.dataset.imgSrc = imgSrc;
-      character.addEventListener("click", () => {
-        if (isGlee) {
-          score++;
-          if (imgSrc === 'https://i.imgur.com/rcpIWd1.png') brittanySound.play();
-          else if (imgSrc === 'https://i.imgur.com/fxL6u9D.png') santanaSound.play();
-          else if (imgSrc === 'https://i.imgur.com/g0yNYad.png') quinnSound.play();
-          else gleeSound.play();
-        } else {
-          score--;
-          if (imgSrc === sueImage) {
-            sueSound.currentTime = 0;
-            sueSound.play();
+        character.style.left = `${x}px`;
+        character.style.top = `${y}px`;
+
+        character.addEventListener("click", () => {
+          if (imgSrc === bonusMember) {
+            score += 2;
+            timeLeft += 5;
+          } else if (isGlee) {
+            score++;
+            timeLeft += 5;
+          } else {
+            score--;
+            timeLeft -= 2;
+            character.style.border = "3px solid red";
+            character.style.animation = "shake 0.3s";
+            setTimeout(() => character.remove(), 300);
           }
-        }
 
-        scoreDisplay.textContent = "Pontos: " + score;
-        if (score < 0) endGame();
-        else spawnCharacter();
-      });
+          playCharacterSound(imgSrc);
+          scoreDisplay.textContent = "Pontos: " + score;
+          timerDisplay.textContent = "Tempo: " + timeLeft;
 
-      game.appendChild(character);
+          if (score < 0 || timeLeft <= 0) endGame();
+          else spawnCharacter();
+        });
+
+        game.appendChild(character);
+      }
     }
 
     function endGame() {
       clearInterval(gameInterval);
       game.querySelectorAll(".character").forEach(el => el.remove());
       gameOverOverlay.classList.add("show");
+      failedCount++;
+      failCounter.textContent = `FAILS AS A TEACHER: ${failedCount}`;
     }
 
     function resetGame() {
@@ -321,9 +378,9 @@
       gameInterval = setInterval(() => {
         timeLeft--;
         timerDisplay.textContent = "Tempo: " + timeLeft;
-        if (timeLeft === 0) endGame();
+        if (timeLeft <= 0) endGame();
         else spawnCharacter();
-      }, 1000);
+      }, score >= 50 ? 600 : 1000);
     }
 
     restartBtn.addEventListener("click", resetGame);
@@ -331,8 +388,6 @@
       intro.remove();
       startGame();
     });
-
-    showDialogue();
   </script>
 </body>
-</html> 
+</html>
