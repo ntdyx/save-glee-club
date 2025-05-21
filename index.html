@@ -222,9 +222,9 @@
     ];
     const nonMembers = [
       'https://i.imgur.com/nifDeKK.png',
-      'https://i.imgur.com/ORy1tTP.png'
+      'https://i.imgur.com/ORy1tTP.png',
+    sueImage = 'https://i.imgur.com/9xxmhXy.png';  
     ];
-    const sueImage = 'https://i.imgur.com/9xxmhXy.png';
 
     let score = 0, timeLeft = 30, gameInterval, failedCount = 0, isMuted = false;
     let lastImgSrc = null;
@@ -244,7 +244,7 @@
     muteBtn.addEventListener("click", () => {
       isMuted = !isMuted;
       bgMusic.muted = isMuted;
-      muteBtn.textContent = isMuted ? "🔇 Mutado" : "🔊 Som";
+      muteBtn.textContent = isMuted ? "🔇" : "🔊";
     });
 
     const dialogues = [
