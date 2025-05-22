@@ -10,6 +10,7 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: #000;
@@ -17,6 +18,7 @@
       padding: 0;
       color: #222;
     }
+
     #game {
       position: relative;
       width: 100%;
@@ -29,6 +31,7 @@
       border: 3px solid #333;
       overflow: hidden;
     }
+
     #intro, #gameOverOverlay {
       position: absolute;
       top: 0; left: 0;
@@ -41,19 +44,23 @@
       z-index: 5;
       padding: 40px 20px;
     }
+
     #intro {
       background-color: #000000ee;
       color: white;
     }
+
     #gameOverOverlay {
       background-color: rgba(0, 0, 0, 0.4);
       display: none;
       z-index: 10;
     }
+
     #gameOverOverlay.show {
       display: flex;
       animation: fadeInPop 0.6s ease-out;
     }
+
     #introImage {
       width: 200px;
       height: 200px;
@@ -62,6 +69,7 @@
       border-radius: 8px;
       margin-bottom: 20px;
     }
+
     #dialogueText {
       max-width: 520px;
       font-size: 18px;
@@ -70,6 +78,7 @@
       white-space: pre-wrap;
       min-height: 120px;
     }
+
     button {
       font-size: 18px;
       border: none;
@@ -80,13 +89,16 @@
       padding: 12px 30px;
       margin-top: 30px;
     }
+
     #playBtn {
       background-color: white;
       color: black;
     }
+
     button:hover {
       background-color: #222;
     }
+
     .character {
       width: 200px;
       height: 200px;
@@ -94,6 +106,7 @@
       background-size: cover;
       cursor: pointer;
     }
+
     #score, #timer, #failCounter, #muteBtn {
       position: absolute;
       top: 10px;
@@ -103,6 +116,7 @@
       font-size: 20px;
       padding: 10px 16px;
     }
+
     #score { left: 10px; }
     #timer { right: 10px; }
     #failCounter {
@@ -110,6 +124,7 @@
       left: 10px;
       top: auto;
     }
+
     #muteBtn {
       bottom: 10px;
       right: 10px;
@@ -118,41 +133,31 @@
       transform: none;
       z-index: 15;
     }
+
     @keyframes fadeInPop {
       0% { opacity: 0; transform: scale(0.8); }
       100% { opacity: 1; transform: scale(1); }
     }
+
     @keyframes shake {
       0%, 100% { transform: translate(0, 0); }
       25% { transform: translate(-5px, 0); }
       50% { transform: translate(5px, 0); }
       75% { transform: translate(-5px, 0); }
     }
+
     #slushie {
       width: 200px;
       margin-bottom: 20px;
     }
+
     #loserText {
       font-size: 48px;
       font-weight: bold;
       color: red;
       text-shadow: 2px 2px black;
     }
-    #doublePointsBanner {
-      position: absolute;
-      top: 20%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 28px;
-      font-weight: bold;
-      padding: 10px 20px;
-      background: gold;
-      color: black;
-      border-radius: 10px;
-      text-shadow: 1px 1px #fff;
-      display: none;
-      z-index: 20;
-    }
+
     @media (max-width: 480px) {
       button {
         font-size: 16px;
@@ -169,8 +174,328 @@
   </style>
 </head>
 <body>
-<div id="game">
-<!-- O restante do código será adicionado na próxima resposta -->
+  <div id="game">
+    <div id="intro">
+      <div id="introImage"></div>
+      <div id="dialogueText"></div>
+      <button id="playBtn">SAVE GLEE CLUB</button>
+    </div>
+
+    <div id="score">Pontos: 0</div>
+    <div id="timer">Tempo: 30</div>
+    <button id="muteBtn">🔊</button>
+    <div id="failCounter">FAILS AS A TEACHER: 0</div>
+    <div id="doublePointsBanner" style="
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  font-weight: bold;
+  padding: 10px 20px;
+  background: gold;
+  color: black;
+  border-radius: 10px;
+  text-shadow: 1px 1px #fff;
+  display: none;
+  z-index: 20;">
+  2x Pontos! 10s
 </div>
+    <div id="gameOverOverlay">
+      <img id="slushie" src="https://i.imgur.com/0KBZD01.png" />
+      <div id="loserText">LOSER!</div>
+      <button id="restartBtn">TRY AGAIN</button>
+
+  <!-- Sons -->
+  <audio id="bgMusic" src="https://www.myinstants.com/media/sounds/glee-dont-rain.mp3" loop></audio>
+  <audio id="gleeSound" src="https://www.myinstants.com/media/sounds/glee.mp3"></audio>
+  <audio id="sueSound" src="https://www.myinstants.com/media/sounds/toxic-sue-sylvester.mp3"></audio>
+  <audio id="brittanySound" src="https://www.myinstants.com/media/sounds/fondue-for-two-glee.mp3"></audio>
+  <audio id="santanaSound" src="https://www.myinstants.com/media/sounds/ive-gotta-gay-go-santana-lopez.mp3"></audio>
+  <audio id="quinnSound" src="https://www.myinstants.com/media/sounds/teen-lesbians-glee.mp3"></audio>
+
+  <script>
+    let doublePointsActive = false;
+let doublePointsTimeout = null;
+    let doublePointsCountdown = 0;
+let doublePointsInterval = null;
+    const bgMusic = document.getElementById("bgMusic");
+    const sounds = {
+      glee: document.getElementById("gleeSound"),
+      sue: document.getElementById("sueSound"),
+      brittany: document.getElementById("brittanySound"),
+      santana: document.getElementById("santanaSound"),
+      quinn: document.getElementById("quinnSound")
+    };
+    Object.values(sounds).forEach(s => s.volume = 0.6);
+
+    const bonusMember = 'https://i.imgur.com/dM06Nfb.png';
+    const gleeMembers = [
+      'https://i.imgur.com/IhwEQn6.png', 'https://i.imgur.com/uIO3gkU.png',
+      'https://i.imgur.com/ACddWCo.png', 'https://i.imgur.com/ou1ianM.png',
+      'https://i.imgur.com/lREEKEB.png', 'https://i.imgur.com/HoTt1Rb.png',
+      'https://i.imgur.com/g0yNYad.png', 'https://i.imgur.com/rcpIWd1.png',
+      'https://i.imgur.com/fxL6u9D.png'
+    ];
+    const nonMembers = [
+  'https://i.imgur.com/nifDeKK.png',
+  'https://i.imgur.com/ORy1tTP.png',
+  'https://i.imgur.com/9xxmhXy.png' // Sue
+    ];
+
+    let score = 0, timeLeft = 30, gameInterval, failedCount = 0, isMuted = false;
+    let lastImgSrc = null;
+
+    const game = document.getElementById("game");
+    const scoreDisplay = document.getElementById("score");
+    const timerDisplay = document.getElementById("timer");
+    const failCounter = document.getElementById("failCounter");
+    const gameOverOverlay = document.getElementById("gameOverOverlay");
+    const intro = document.getElementById("intro");
+    const playBtn = document.getElementById("playBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const introImage = document.getElementById("introImage");
+    const dialogueText = document.getElementById("dialogueText");
+    const muteBtn = document.getElementById("muteBtn");
+
+    muteBtn.addEventListener("click", () => {
+      isMuted = !isMuted;
+      bgMusic.muted = isMuted;
+      muteBtn.textContent = isMuted ? "🔇" : "🔊";
+    });
+
+    const dialogues = [
+      { img: "https://i.imgur.com/bEEBXWI.png", text: "RACHEL: Mr. Schuester, they’re trying to destroy the Glee Club… and my future!" },
+      { img: "https://i.imgur.com/zz0eHDg.png", text: "WILL SCHUESTER: I know, Rachel. I’ve heard the rumors. But what can I do?" },
+      { img: "https://i.imgur.com/xRgQUg0.png", text: "RACHEL: Don’t let the haters in our room. This is our safe place—our stage!" },
+      { img: "https://i.imgur.com/zz0eHDg.png", text: "Click fast. Spot the real Glee members. Keep the haters out.\n🎶 Let the show go on! 🎶" },
+      { img: "https://i.imgur.com/XG67t9A.jpeg", text: "Ready to save the Glee Club? Let’s go!" }
+    ];
+    let currentDialogue = 0;
+
+    function showDialogue() {
+      const { img, text } = dialogues[currentDialogue];
+      introImage.style.backgroundImage = url(${img});
+      dialogueText.textContent = text;
+    }
+
+    function advanceDialogue() {
+      currentDialogue++;
+      if (currentDialogue < dialogues.length) showDialogue();
+      else {
+        document.removeEventListener("click", advanceDialogue);
+        playBtn.style.display = "inline-block";
+      }
+      function updateDoublePointsBanner() {
+  const banner = document.getElementById("doublePointsBanner");
+  banner.textContent = 2x Pontos! ${doublePointsCountdown}s;
+}
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      bgMusic.volume = 0.3;
+      bgMusic.play().catch(() => {
+        document.addEventListener("click", () => bgMusic.play(), { once: true });
+      });
+      showDialogue();
+      document.addEventListener("click", advanceDialogue);
+    });
+
+    function playCharacterSound(imgSrc) {
+      if (imgSrc === gleeMembers[7]) sounds.brittany.play();
+      else if (imgSrc === gleeMembers[8]) sounds.santana.play();
+      else if (imgSrc === gleeMembers[6]) sounds.quinn.play();
+      else if (imgSrc === sueImage) { sounds.sue.currentTime = 0; sounds.sue.play(); }
+      else sounds.glee.play();
+    }
+
+    function getRandomNonRepeatingImage(pool) {
+      let filtered = pool.filter(img => img !== lastImgSrc);
+      if (filtered.length === 0) filtered = pool;
+      const chosen = filtered[Math.floor(Math.random() * filtered.length)];
+      lastImgSrc = chosen;
+      return chosen;
+    }
+
+    function spawnCharacter() {
+      game.querySelectorAll(".character").forEach(el => el.remove());
+      const spawnCount = score >= 50 ? 3 : (score >= 10 ? 2 : 1);
+
+      for (let i = 0; i < spawnCount; i++) {
+        let isBonus = Math.random() < 0.04;
+        let isGlee = !isBonus && Math.random() < (score >= 50 ? 0.3 : 0.5);
+        let pool = isGlee ? gleeMembers : nonMembers;
+        let imgSrc = isBonus ? bonusMember : getRandomNonRepeatingImage(pool);
+
+        const character = document.createElement("div");
+        character.classList.add("character");
+        character.style.backgroundImage = url(${imgSrc});
+
+        const size = 200;
+        let x, y, tries = 0, overlap;
+        do {
+          x = Math.random() * (game.offsetWidth - size);
+          y = Math.random() * (game.offsetHeight - size);
+          overlap = false;
+          document.querySelectorAll(".character").forEach(other => {
+            const ox = parseFloat(other.style.left);
+            const oy = parseFloat(other.style.top);
+            if (Math.abs(ox - x) < size && Math.abs(oy - y) < size) {
+              overlap = true;
+            }
+          });
+          tries++;
+        } while (overlap && tries < 20);
+
+        character.style.left = ${x}px;
+        character.style.top = ${y}px;
+
+         character.addEventListener("click", () => {
+  const isFromGlee = gleeMembers.includes(imgSrc);
+  const isFromNon = nonMembers.includes(imgSrc);
+  const isBonusChar = imgSrc === bonusMember;
+
+  let pointsToAdd = 1;
+
+  if (isBonusChar) {
+    doublePointsActive = true;
+    doublePointsCountdown = 10;
+    updateDoublePointsBanner();
+    document.getElementById("doublePointsBanner").style.display = "block";
+
+    if (doublePointsTimeout) clearTimeout(doublePointsTimeout);
+    if (doublePointsInterval) clearInterval(doublePointsInterval);
+
+    doublePointsTimeout = setTimeout(() => {
+      doublePointsActive = false;
+      document.getElementById("doublePointsBanner").style.display = "none";
+    }, 10000);
+
+    doublePointsInterval = setInterval(() => {
+      doublePointsCountdown--;
+      updateDoublePointsBanner();
+      if (doublePointsCountdown <= 0) clearInterval(doublePointsInterval);
+    }, 1000);
+
+    character.style.boxShadow = "0 0 15px 5px gold";
+    character.style.transition = "box-shadow 0.3s";
+    pointsToAdd = 2;
+  } else if (isFromGlee) {
+    pointsToAdd = 1;
+  } else if (isFromNon) {
+    score--;
+    timeLeft -= 2;
+    character.style.border = "3px solid red";
+    character.style.animation = "shake 0.3s";
+    setTimeout(() => character.remove(), 300);
+    updateDisplay();
+    if (score < 0 || timeLeft <= 0) {
+      endGame();
+    } else {
+      setTimeout(() => spawnCharacter(), 300);
+    }
+    return;
+  }
+
+  if (doublePointsActive && !isBonusChar) pointsToAdd *= 2;
+
+  score += pointsToAdd;
+  timeLeft += 2;
+
+  playCharacterSound(imgSrc);
+  updateDisplay();
+
+  if (score < 0 || timeLeft <= 0) {
+    endGame();
+  } else {
+    setTimeout(() => spawnCharacter(), 300);
+  }
+});
+  } else if (isGlee) {
+    pointsToAdd = 1;
+  } else {
+    // Clique errado (vilão)
+    score--;
+    timeLeft -= 2;
+    character.style.border = "3px solid red";
+    character.style.animation = "shake 0.3s";
+    setTimeout(() => character.remove(), 300);
+    updateDisplay();
+
+    // Delay na próxima aparição
+    if (score < 0 || timeLeft <= 0) {
+      endGame();
+    } else {
+      setTimeout(() => spawnCharacter(), 300);
+    }
+    return;
+  }
+
+  if (doublePointsActive && imgSrc !== bonusMember) pointsToAdd *= 2;
+
+  score += pointsToAdd;
+  timeLeft += 2;
+
+  playCharacterSound(imgSrc);
+  updateDisplay();
+
+  // Delay aqui também para evitar "lag" visual
+  if (score < 0 || timeLeft <= 0) {
+    endGame();
+  } else {
+    setTimeout(() => spawnCharacter(), 300);
+  }
+});
+        game.appendChild(character);
+      }
+    }
+
+    function endGame() {
+      clearInterval(gameInterval);
+      game.querySelectorAll(".character").forEach(el => el.remove());
+      gameOverOverlay.classList.add("show");
+      failedCount++;
+      failCounter.textContent = FAILS AS A TEACHER: ${failedCount};
+    }
+
+    function resetGame() {
+      score = 0;
+      timeLeft = 30;
+      scoreDisplay.textContent = "Pontos: 0";
+      timerDisplay.textContent = "Tempo: 30";
+      gameOverOverlay.classList.remove("show");
+      startGame();
+    }
+
+    function startGame() {
+  spawnCharacter();
+  gameInterval = setInterval(() => {
+    // Ajusta a velocidade dinamicamente conforme o score
+    let intervalSpeed;
+    if (score >= 50) intervalSpeed = 400;
+    else if (score >= 20) intervalSpeed = 600;
+    else if (score >= 10) intervalSpeed = 800;
+    else intervalSpeed = 1000;
+
+    timeLeft--;
+    timerDisplay.textContent = "Tempo: " + timeLeft;
+    if (timeLeft <= 0) {
+      endGame();
+    } else {
+      spawnCharacter();
+
+      // Atualiza o intervalo se a velocidade mudou
+      clearInterval(gameInterval);
+      gameInterval = setInterval(startGame, intervalSpeed);
+    }
+  }, 1000); // valor inicial
+}
+
+    restartBtn.addEventListener("click", resetGame);
+    playBtn.addEventListener("click", () => {
+      intro.remove();
+      startGame();
+    });
+  </script>
 </body>
 </html>
