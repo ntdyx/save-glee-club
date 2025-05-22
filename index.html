@@ -190,6 +190,17 @@
       <img id="slushie" src="https://i.imgur.com/0KBZD01.png" />
       <div id="loserText">LOSER!</div>
       <button id="restartBtn">TRY AGAIN</button>
+      <div id="doublePointsBanner" style="
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 36px;
+  font-weight: bold;
+  color: gold;
+  text-shadow: 2px 2px 5px black;
+  display: none;
+  z-index: 20;">2x Pontos Ativado!</div>
     </div>
   </div>
 
@@ -202,6 +213,8 @@
   <audio id="quinnSound" src="https://www.myinstants.com/media/sounds/teen-lesbians-glee.mp3"></audio>
 
   <script>
+    let doublePointsActive = false;
+let doublePointsTimeout = null;
     const bgMusic = document.getElementById("bgMusic");
     const sounds = {
       glee: document.getElementById("gleeSound"),
@@ -329,28 +342,51 @@
         character.style.left = `${x}px`;
         character.style.top = `${y}px`;
 
-        character.addEventListener("click", () => {
-          if (imgSrc === bonusMember) {
-            score += 2;
-            timeLeft += 5;
-          } else if (isGlee) {
-            score++;
-            timeLeft += 5;
-          } else {
-            score--;
-            timeLeft -= 2;
-            character.style.border = "3px solid red";
-            character.style.animation = "shake 0.3s";
-            setTimeout(() => character.remove(), 300);
-          }
+         character.addEventListener("click", () => {
+  let pointsToAdd = 1;
 
-          playCharacterSound(imgSrc);
-          scoreDisplay.textContent = "Pontos: " + score;
-          timerDisplay.textContent = "Tempo: " + timeLeft;
+  if (imgSrc === bonusMember) {
+    doublePointsActive = true;
 
-          if (score < 0 || timeLeft <= 0) endGame();
-          else spawnCharacter();
-        });
+    // Limpa timeout anterior se houver
+    if (doublePointsTimeout) clearTimeout(doublePointsTimeout);
+
+    doublePointsTimeout = setTimeout(() => {
+      doublePointsActive = false;
+      document.getElementById("doublePointsBanner").style.display = "none";
+    }, 10000);
+
+    // Mostra efeito visual no bônus e banner
+    character.style.boxShadow = "0 0 15px 5px gold";
+    character.style.transition = "box-shadow 0.3s";
+    document.getElementById("doublePointsBanner").style.display = "block";
+
+    pointsToAdd = 2;
+  } else if (isGlee) {
+    pointsToAdd = 1;
+  } else {
+    score--;
+    timeLeft -= 2;
+    character.style.border = "3px solid red";
+    character.style.animation = "shake 0.3s";
+    setTimeout(() => character.remove(), 300);
+    updateDisplay();
+    if (score < 0 || timeLeft <= 0) endGame();
+    else spawnCharacter();
+    return;
+  }
+
+  if (doublePointsActive && imgSrc !== bonusMember) pointsToAdd *= 2;
+
+  score += pointsToAdd;
+  timeLeft += 5;
+
+  playCharacterSound(imgSrc);
+  updateDisplay();
+
+  if (score < 0 || timeLeft <= 0) endGame();
+  else spawnCharacter();
+});
 
         game.appendChild(character);
       }
