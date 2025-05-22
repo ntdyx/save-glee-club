@@ -402,7 +402,7 @@ let doublePointsInterval = null;
   if (doublePointsActive && imgSrc !== bonusMember) pointsToAdd *= 2;
 
   score += pointsToAdd;
-  timeLeft += 5;
+  timeLeft += 2;
 
   playCharacterSound(imgSrc);
   updateDisplay();
@@ -436,14 +436,28 @@ let doublePointsInterval = null;
     }
 
     function startGame() {
+  spawnCharacter();
+  gameInterval = setInterval(() => {
+    // Ajusta a velocidade dinamicamente conforme o score
+    let intervalSpeed;
+    if (score >= 50) intervalSpeed = 400;
+    else if (score >= 20) intervalSpeed = 600;
+    else if (score >= 10) intervalSpeed = 800;
+    else intervalSpeed = 1000;
+
+    timeLeft--;
+    timerDisplay.textContent = "Tempo: " + timeLeft;
+    if (timeLeft <= 0) {
+      endGame();
+    } else {
       spawnCharacter();
-      gameInterval = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = "Tempo: " + timeLeft;
-        if (timeLeft <= 0) endGame();
-        else spawnCharacter();
-      }, score >= 50 ? 600 : 1000);
+
+      // Atualiza o intervalo se a velocidade mudou
+      clearInterval(gameInterval);
+      gameInterval = setInterval(startGame, intervalSpeed);
     }
+  }, 1000); // valor inicial
+}
 
     restartBtn.addEventListener("click", resetGame);
     playBtn.addEventListener("click", () => {
