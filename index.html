@@ -185,12 +185,7 @@
     <div id="timer">Tempo: 30</div>
     <button id="muteBtn">🔊</button>
     <div id="failCounter">FAILS AS A TEACHER: 0</div>
-
-    <div id="gameOverOverlay">
-      <img id="slushie" src="https://i.imgur.com/0KBZD01.png" />
-      <div id="loserText">LOSER!</div>
-      <button id="restartBtn">TRY AGAIN</button>
-     <div id="doublePointsBanner" style="
+    <div id="doublePointsBanner" style="
   position: absolute;
   top: 20%;
   left: 50%;
@@ -206,6 +201,10 @@
   z-index: 20;">
   2x Pontos! 10s
 </div>
+    <div id="gameOverOverlay">
+      <img id="slushie" src="https://i.imgur.com/0KBZD01.png" />
+      <div id="loserText">LOSER!</div>
+      <button id="restartBtn">TRY AGAIN</button>
 
   <!-- Sons -->
   <audio id="bgMusic" src="https://www.myinstants.com/media/sounds/glee-dont-rain.mp3" loop></audio>
@@ -218,6 +217,8 @@
   <script>
     let doublePointsActive = false;
 let doublePointsTimeout = null;
+    let doublePointsCountdown = 0;
+let doublePointsInterval = null;
     const bgMusic = document.getElementById("bgMusic");
     const sounds = {
       glee: document.getElementById("gleeSound"),
@@ -285,6 +286,10 @@ let doublePointsTimeout = null;
         document.removeEventListener("click", advanceDialogue);
         playBtn.style.display = "inline-block";
       }
+      function updateDoublePointsBanner() {
+  const banner = document.getElementById("doublePointsBanner");
+  banner.textContent = `2x Pontos! ${doublePointsCountdown}s`;
+}
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -351,31 +356,46 @@ let doublePointsTimeout = null;
   if (imgSrc === bonusMember) {
     doublePointsActive = true;
 
-    // Limpa timeout anterior se houver
+    // Reinicia tempo e visual
+    doublePointsCountdown = 10;
+    updateDoublePointsBanner();
+    document.getElementById("doublePointsBanner").style.display = "block";
+
     if (doublePointsTimeout) clearTimeout(doublePointsTimeout);
+    if (doublePointsInterval) clearInterval(doublePointsInterval);
 
     doublePointsTimeout = setTimeout(() => {
       doublePointsActive = false;
       document.getElementById("doublePointsBanner").style.display = "none";
     }, 10000);
 
-    // Mostra efeito visual no bônus e banner
+    doublePointsInterval = setInterval(() => {
+      doublePointsCountdown--;
+      updateDoublePointsBanner();
+      if (doublePointsCountdown <= 0) clearInterval(doublePointsInterval);
+    }, 1000);
+
     character.style.boxShadow = "0 0 15px 5px gold";
     character.style.transition = "box-shadow 0.3s";
-    document.getElementById("doublePointsBanner").style.display = "block";
 
     pointsToAdd = 2;
   } else if (isGlee) {
     pointsToAdd = 1;
   } else {
+    // Clique errado (vilão)
     score--;
     timeLeft -= 2;
     character.style.border = "3px solid red";
     character.style.animation = "shake 0.3s";
     setTimeout(() => character.remove(), 300);
     updateDisplay();
-    if (score < 0 || timeLeft <= 0) endGame();
-    else spawnCharacter();
+
+    // Delay na próxima aparição
+    if (score < 0 || timeLeft <= 0) {
+      endGame();
+    } else {
+      setTimeout(() => spawnCharacter(), 300);
+    }
     return;
   }
 
@@ -387,10 +407,13 @@ let doublePointsTimeout = null;
   playCharacterSound(imgSrc);
   updateDisplay();
 
-  if (score < 0 || timeLeft <= 0) endGame();
-  else spawnCharacter();
+  // Delay aqui também para evitar "lag" visual
+  if (score < 0 || timeLeft <= 0) {
+    endGame();
+  } else {
+    setTimeout(() => spawnCharacter(), 300);
+  }
 });
-
         game.appendChild(character);
       }
     }
